@@ -13,6 +13,7 @@ import { emergencyReasons, getHospitalById, calculateDistance, estimateETA } fro
 import { findUserByEmail, DemoUser } from '@/data/demoUsers';
 import { TemporaryEmergencyVehicle } from '@/data/types';
 import { toast } from '@/hooks/use-toast';
+import RewardsPanel from '@/components/rewards/RewardsPanel';
 import { 
   Clock, 
   MapPin, 
@@ -25,7 +26,8 @@ import {
   Navigation,
   Mail,
   Loader2,
-  User
+  User,
+  Star
 } from 'lucide-react';
 
 type ViewMode = 'request' | 'approving' | 'active';
@@ -37,6 +39,12 @@ const TemporaryEmergencyDashboard = () => {
     tempVehicles.length > 0 ? tempVehicles[0] : null
   );
   const [countdown, setCountdown] = useState<number>(0);
+  const [rewardPoints, setRewardPoints] = useState(0);
+  const [pointsLog, setPointsLog] = useState<Array<{ label: string; points: number; icon: React.ReactNode; earned: boolean }>>([
+    { label: 'Accept request', points: 10, icon: <CheckCircle className="w-3.5 h-3.5 text-muted-foreground" />, earned: false },
+    { label: 'On-time arrival', points: 20, icon: <Clock className="w-3.5 h-3.5 text-muted-foreground" />, earned: false },
+    { label: 'Safe driving', points: 5, icon: <Shield className="w-3.5 h-3.5 text-muted-foreground" />, earned: false },
+  ]);
   
   // Email lookup state
   const [email, setEmail] = useState('');
@@ -157,12 +165,28 @@ const TemporaryEmergencyDashboard = () => {
       addTempVehicle(newVehicle);
       setActiveVehicle(newVehicle);
       setViewMode('active');
+      
+      // Award +10 points for accepting request
+      setRewardPoints(prev => prev + 10);
+      setPointsLog(prev => prev.map(p => 
+        p.label === 'Accept request' ? { ...p, earned: true, icon: <CheckCircle className="w-3.5 h-3.5 text-green-500" /> } : p
+      ));
+      toast({ title: "🌟 +10 Points!", description: "Earned for accepting emergency request" });
     }, 2500);
   };
 
   const handleEndEmergency = () => {
     if (activeVehicle) {
       updateTempVehicle(activeVehicle.id, { status: 'completed' });
+      
+      // Award +20 for on-time arrival and +5 for safe driving
+      setRewardPoints(prev => prev + 25);
+      setPointsLog(prev => prev.map(p => {
+        if (p.label === 'On-time arrival') return { ...p, earned: true, icon: <Clock className="w-3.5 h-3.5 text-green-500" /> };
+        if (p.label === 'Safe driving') return { ...p, earned: true, icon: <Shield className="w-3.5 h-3.5 text-green-500" /> };
+        return p;
+      }));
+      toast({ title: "🏆 +25 Points!", description: "On-time arrival (+20) & Safe driving (+5)" });
     }
     setActiveVehicle(null);
     setViewMode('request');
@@ -484,7 +508,14 @@ const TemporaryEmergencyDashboard = () => {
                     <span>Time-limited (30 min max)</span>
                   </div>
                 </CardContent>
-              </Card>
+               </Card>
+
+              {/* Rewards Panel */}
+              <RewardsPanel
+                totalPoints={rewardPoints}
+                pointsLog={pointsLog}
+                onClaimReward={(id) => toast({ title: "🎁 Reward Claimed!", description: `You've claimed your reward successfully.` })}
+              />
             </div>
 
             {/* Map */}
