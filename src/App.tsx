@@ -10,6 +10,8 @@ import AmbulanceDashboard from "./pages/AmbulanceDashboard";
 import TemporaryEmergencyDashboard from "./pages/TemporaryEmergencyDashboard";
 import PoliceDashboard from "./pages/PoliceDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
+import RewardsPage from "./pages/RewardsPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/login/:role" element={<LoginPage />} />
             <Route path="/ambulance" element={<AmbulanceDashboard />} />
             <Route path="/temporary" element={<TemporaryEmergencyDashboard />} />
+            <Route path="/rewards" element={<RewardsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/police" element={<PoliceDashboard />} />
             <Route path="/hospital" element={<HospitalDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
