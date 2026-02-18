@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { emergencyReasons, getHospitalById, calculateDistance, estimateETA } fro
 import { findUserByEmail, DemoUser } from '@/data/demoUsers';
 import { TemporaryEmergencyVehicle } from '@/data/types';
 import { toast } from '@/hooks/use-toast';
-import RewardsPanel from '@/components/rewards/RewardsPanel';
+// RewardsPanel removed - now on separate /rewards page
 import { 
   Clock, 
   MapPin, 
@@ -33,6 +34,7 @@ import {
 type ViewMode = 'request' | 'approving' | 'active';
 
 const TemporaryEmergencyDashboard = () => {
+  const navigate = useNavigate();
   const { hospitals, tempVehicles, addTempVehicle, updateTempVehicle } = useApp();
   const [viewMode, setViewMode] = useState<ViewMode>('request');
   const [activeVehicle, setActiveVehicle] = useState<TemporaryEmergencyVehicle | null>(
@@ -40,6 +42,7 @@ const TemporaryEmergencyDashboard = () => {
   );
   const [countdown, setCountdown] = useState<number>(0);
   const [rewardPoints, setRewardPoints] = useState(0);
+  const [earnedSteps, setEarnedSteps] = useState<string[]>([]);
   const [pointsLog, setPointsLog] = useState<Array<{ label: string; points: number; icon: React.ReactNode; earned: boolean }>>([
     { label: 'Accept request', points: 10, icon: <CheckCircle className="w-3.5 h-3.5 text-muted-foreground" />, earned: false },
     { label: 'On-time arrival', points: 20, icon: <Clock className="w-3.5 h-3.5 text-muted-foreground" />, earned: false },
@@ -168,6 +171,7 @@ const TemporaryEmergencyDashboard = () => {
       
       // Award +10 points for accepting request
       setRewardPoints(prev => prev + 10);
+      setEarnedSteps(prev => [...prev, 'accept']);
       setPointsLog(prev => prev.map(p => 
         p.label === 'Accept request' ? { ...p, earned: true, icon: <CheckCircle className="w-3.5 h-3.5 text-green-500" /> } : p
       ));
@@ -181,6 +185,7 @@ const TemporaryEmergencyDashboard = () => {
       
       // Award +20 for on-time arrival and +5 for safe driving
       setRewardPoints(prev => prev + 25);
+      setEarnedSteps(prev => [...prev, 'arrival', 'safe']);
       setPointsLog(prev => prev.map(p => {
         if (p.label === 'On-time arrival') return { ...p, earned: true, icon: <Clock className="w-3.5 h-3.5 text-green-500" /> };
         if (p.label === 'Safe driving') return { ...p, earned: true, icon: <Shield className="w-3.5 h-3.5 text-green-500" /> };
@@ -510,17 +515,27 @@ const TemporaryEmergencyDashboard = () => {
                 </CardContent>
                </Card>
 
-              {/* Rewards Panel */}
-              <RewardsPanel
-                totalPoints={rewardPoints}
-                pointsLog={pointsLog}
-                onClaimReward={(id) => toast({ title: "🎁 Reward Claimed!", description: `You've claimed your reward successfully.` })}
-              />
             </div>
 
-            {/* Map */}
-            <div className="flex-1 p-4 min-h-[400px] lg:min-h-0">
-              <div className="h-full rounded-lg overflow-hidden border border-border">
+            {/* Map + Rewards Button */}
+            <div className="flex-1 p-4 min-h-[400px] lg:min-h-0 flex flex-col">
+              {/* Rewards button above map */}
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <span className="font-semibold text-sm">{rewardPoints} pts earned</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => navigate(`/rewards?points=${rewardPoints}&earned=${earnedSteps.join(',')}`)}
+                >
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  View Rewards
+                </Button>
+              </div>
+              <div className="flex-1 rounded-lg overflow-hidden border border-border">
                 <EmergencyMap
                   hospitals={hospitals}
                   tempVehicles={[activeVehicle]}
