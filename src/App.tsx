@@ -16,6 +16,7 @@ import HospitalDashboard from "./pages/HospitalDashboard";
 import RewardsPage from "./pages/RewardsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import MedicalBot from "./pages/MedicalBot";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/police" element={<PoliceDashboard />} />
               <Route path="/hospital" element={<HospitalDashboard />} />
+              <Route path="/medical-bot" element={<MedicalBot />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

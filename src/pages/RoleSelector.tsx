@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApp } from '@/context/AppContext';
 import { UserRole } from '@/data/types';
-import { Ambulance, Car, Shield, Building2 } from 'lucide-react';
+import { Ambulance, Car, Shield, Building2, Stethoscope } from 'lucide-react';
 
 const roles: { role: UserRole; title: string; description: string; icon: React.ElementType; color: string }[] = [
   {
@@ -98,6 +98,16 @@ const RoleSelector = () => {
           🎯 Demo Mode • Pre-loaded with Bangalore data
         </div>
       </main>
+
+      {/* Floating Medical Bot Button */}
+      <button
+        onClick={() => navigate('/medical-bot')}
+        className="fixed bottom-6 right-6 z-40 group flex items-center gap-2 px-4 py-3 rounded-full bg-medical text-medical-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
+        aria-label="Open Medical Bot"
+      >
+        <Stethoscope className="w-5 h-5" />
+        <span className="font-medium text-sm">Medical Bot</span>
+      </button>
 
       {/* Footer */}
       <footer className="p-4 text-center text-sm text-muted-foreground">
